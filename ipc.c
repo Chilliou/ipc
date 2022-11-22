@@ -9,9 +9,11 @@
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #include <sys/types.h>
+#include<pthread.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>
+#include <unistd.h>
 void abandon(char message[]){
     perror(message);
     exit(EXIT_FAILURE);
@@ -22,6 +24,14 @@ struct donnees {
 };
 int main(void)
 {
+    pthread_mutex_t lock;
+
+    if (pthread_mutex_init(&lock, NULL) != 0) {
+        printf("\n mutex init failed\n");
+        return 1;
+    }
+
+
     key_t cle;
     int id;
     struct donnees *commun;
@@ -51,8 +61,12 @@ int main(void)
         printf("+ ");
         if (scanf("%d", &reponse) != 1)
             break;
+        //ici lock
+        pthread_mutex_lock(&lock);
         commun->nb++;
         commun->total += reponse;
+        pthread_mutex_unlock(&lock);
+        // ici unlock
         printf("sous-total %d= %d\n", commun->nb, commun->total);
     }
     printf("---\n");
@@ -62,5 +76,8 @@ int main(void)
     /* suppression segment */
     if (shmctl(id, IPC_RMID, NULL) == -1)
         abandon("shmctl(remove)");
+
+    pthread_mutex_destroy(&lock);
+
     return EXIT_SUCCESS;
 }
