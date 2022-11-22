@@ -29,6 +29,7 @@ void arreter_boucle(int signal)
 {
     continuer_boucle = 0;
 }
+//Blalalallalal
 int main(void)
 {
     key_t cle;
