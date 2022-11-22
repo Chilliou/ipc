@@ -12,6 +12,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>
+#include <limits.h>
+#include <time.h>
+#include <unistd.h>
 void abandon(char message[]){
     perror(message);
     exit(EXIT_FAILURE);
@@ -22,6 +25,7 @@ struct donnees {
 };
 int main(void)
 {
+    srand((int)time(NULL));
     key_t cle;
     int id;
     struct donnees *commun;
@@ -47,13 +51,24 @@ int main(void)
     commun->nb = 0;
     commun->total = 0;
 
+    sleep(5);
+    int i=0;
     while (1) {
+
         printf("+ ");
+        int randNum = rand()%100;
+
+        /*
         if (scanf("%d", &reponse) != 1)
             break;
+        */
         commun->nb++;
-        commun->total += reponse;
+        commun->total += randNum; //response
+        printf("sRand num %d : %d\n", commun->nb, randNum);
         printf("sous-total %d= %d\n", commun->nb, commun->total);
+        i++;
+        if(i> 100)
+            break;
     }
     printf("---\n");
 
