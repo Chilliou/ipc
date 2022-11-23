@@ -13,12 +13,14 @@ int main()
     pid_t pid=fork();
     if (pid==0) { /* child process */
         static char *argv[]={NULL};
-        execv("./ipc",argv);
+
+        execv("./ipc.exe",argv);
         exit(127); /* only if execv fails */
     }
     else { /* pid!=0; parent process */
         static char *argv[]={NULL};
-        execv("./ipc",argv);
+
+        execv("./ipc.exe",argv);
         waitpid(pid,0,0); /* wait for child to exit */
 
     }
