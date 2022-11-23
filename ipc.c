@@ -16,6 +16,8 @@
 #include <time.h>
 #include <unistd.h>
 #include<pthread.h>
+
+
 pthread_mutex_t lock;
 
 void * testRand (void * arg);
