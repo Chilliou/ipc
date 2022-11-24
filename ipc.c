@@ -26,6 +26,7 @@ void abandon(char message[]){
     exit(EXIT_FAILURE);
 }
 struct donnees {
+	int tabAlea[1000000];
     int nb;
     int total;
 };
@@ -93,6 +94,7 @@ void * testRand (void * arg) {
     key_t cle;
     int id;
     struct donnees *commun;
+    pid_t tid = gettid();
 
     cle = ftok(getenv("HOME"), 'A');
     if (cle == -1)
@@ -111,28 +113,49 @@ void * testRand (void * arg) {
     }
     commun = (struct donnees *) shmat(id, NULL, SHM_R | SHM_W);
 
-    int i=0;
-    while (1) {
+    printf("%d : Start \n",tid);
 
-        printf("+ ");
-        int randNum = rand()%100;
+    int TAILLE = 100000000; //100 million on peux pas plus sinon le process kill 
+    for(int z=0;z<=3;z++)
+    {
+    	int *array_n;
+    	array_n = malloc((size_t)TAILLE * sizeof(int));
 
-        /*
-        if (scanf("%d", &reponse) != 1)
-            break;
-        */
+    	if(!array_n)
+    	{
+    		fputs("SegFault\n",stderr);
+    		return 1;
+    	}
 
-        pthread_mutex_lock(&lock);
-        commun->nb++;
-        commun->total += randNum; //response
-        printf("sRand num %d : %d\n", commun->nb, randNum);
-        printf("sous-total %d= %d\n", commun->nb, commun->total);
+    	printf("%d : Start Rand Number: %d \n",tid,z);
 
-        pthread_mutex_unlock(&lock);
-        i++;
+    	int i=0;
+    	while(i<TAILLE) //1000000000 100M 
+    	{
 
-        if(i> 100)
-            break;
+    		array_n[i] = rand();
+    		i++;
+    	}
+    	printf("%d : End Rand Number: %d \n",tid,z);
+
+    	pthread_mutex_lock(&lock);
+
+    	printf("%d : Start Tab Filling and Mutex Lock Number: %d \n",tid,z);
+
+    	i=0;
+    	while(i<TAILLE) //1000000000  100M 
+    	{
+    		commun->tabAlea[array_n[i]/RAND_MAX]++; 
+    		i++;
+    	}
+
+    	pthread_mutex_unlock(&lock);
+
+    	printf("%d : End Tab Filling and Mutex UnLock Number: %d \n",tid,z);
+
+    	free(array_n);	
+
     }
-    printf("---\n");
+       
+    printf("%d : End \n",tid);
 }
