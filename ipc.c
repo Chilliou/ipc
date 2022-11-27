@@ -16,8 +16,9 @@
 #include <unistd.h>
 #include<pthread.h>
 
+#define NB_THREAD 10
 #define TABSIZE 1000000
-#define NB_RELANCE 100
+#define NB_RELANCE 10
 #define RAND_PAR_RELANCE 100000000  //On ne pouvait pas faire 1 milliard par 1 milliard le pc kill le processus 	
 									// Par conséquant on relance 100 fois le 100 millions pour faire 100 milliard de random
 
@@ -38,7 +39,7 @@ int main()
 {
 
     void * x1;
-    pthread_t th1, th2;
+    pthread_t thread_clients [NB_THREAD];
 
     if (pthread_mutex_init(&lock, NULL) != 0)
     {
@@ -71,21 +72,25 @@ int main()
     commun->nb = 0;
     commun->total = 0;
 
-    sleep(5);
+    for (int i = 0; i < NB_THREAD; i++)
+    {
+    	pthread_create(&thread_clients[i], NULL, testRand, NULL);
+    }
 
-    pthread_create(&th1, NULL, testRand, NULL);
-    pthread_create(&th2, NULL, testRand, NULL);
+    for (int i = 0; i < NB_THREAD; i++)
+    {
+    	pthread_join(thread_clients[i], &x1);
+    }
 
-    pthread_join(th1, &x1);
-    pthread_join(th2, &x1);
 
     /////////////////////////////////
     // Calcul du pourcentage       //
     /////////////////////////////////
 
-    //double moy_nbTab = NB_RELANCE*RAND_PAR_RELANCE*2/(sizeof(commun->tabAlea)/sizeof(commun->tabAlea[0]));
+    //double  moy_nbTab = NB_RELANCE*RAND_PAR_RELANCE*NB_THREAD/(sizeof(commun->tabAlea)/sizeof(commun->tabAlea[0]));
 
-    double moy_nbTab = 20000;  // Calculer a la main puisque sinon on overflow avec le calcul au dessus 
+    double moy_nbTab = 10000;  // Calculer à la main puisque sinon on overflow avec le calcul au dessus 
+    printf("tab au pif%d\n",commun->tabAlea[46512] );
     double maxEqui = 0.0;
 
     for(int i=0;i<TABSIZE;i++)
