@@ -87,7 +87,6 @@ int main()
     //double  moy_nbTab = NB_RELANCE*RAND_PAR_RELANCE*NB_THREAD/(sizeof(commun->tabAlea)/sizeof(commun->tabAlea[0]));
 
     double moy_nbTab = 10000;  // Calculer à la main puisque sinon on overflow avec le calcul au dessus 
-    printf("tab au pif%d\n",commun->tabAlea[46512] );
     double maxEqui = 0.0;
 
     for(int i=0;i<TABSIZE;i++)
