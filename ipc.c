@@ -31,10 +31,9 @@ void abandon(char message[]){
     exit(EXIT_FAILURE);
 }
 struct donnees {
-	int tabAlea[TABSIZE];
-    int nb;
-    int total;
+    int tabAlea[TABSIZE];
 };
+
 int main()
 {
 
@@ -69,8 +68,6 @@ int main()
     commun = (struct donnees *) shmat(id, NULL, SHM_R | SHM_W);
     if (commun == NULL)
         abandon("shmat");
-    commun->nb = 0;
-    commun->total = 0;
 
     for (int i = 0; i < NB_THREAD; i++)
     {
@@ -136,17 +133,17 @@ void * testRand (void * arg) {
     cle = ftok(getenv("HOME"), 'A');
     if (cle == -1)
         abandon("ftok");
-    id = shmget(cle, sizeof(struct donnees),
-                IPC_CREAT | IPC_EXCL | 0666);
+	
+    id = shmget(cle, sizeof(struct donnees), 0);
     if (id == -1) {
         switch (errno) {
-            case EEXIST:
-                id = shmget(cle, sizeof(struct donnees), 0);
-                break;
+            case ENOENT:
+                abandon("pas de segment\n");
             default:
                 abandon("shmget");
         }
     }
+	
     commun = (struct donnees *) shmat(id, NULL, SHM_R | SHM_W);
 
     printf("%d : Start \n",tid);
