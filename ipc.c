@@ -42,9 +42,8 @@ void generateChilds()
         if( !fork() ) 
         {
             pid_t fid = getpid();         //Surement inutile mais sans le redéfinir j'avais 0
-            printf("%d : Start \n",fid);
 
-            srand(getpid());
+            srand((int)time(NULL)); // Au cas où
 
             int *array_n;
             array_n = malloc((size_t)TABSIZE * sizeof(int));
@@ -55,17 +54,13 @@ void generateChilds()
                 exit(EXIT_FAILURE);
             }
 
-            printf("%d : Start Rand Number \n",fid);
 
             for( int i = 0; i < RAND_PAR_RELANCE; ++i )
             {
                 array_n[rand() / (RAND_MAX / TABSIZE)]++;
             }
-            printf("%d : End Rand Number:  \n",fid);
 
             sem_wait (sem);  //Verrouiller un sémaphore 
-
-            printf("%d : Start Tab Filling and Mutex Lock Number\n",fid);
 
             for( int i = 0; i < RAND_PAR_RELANCE; ++i )
             {
@@ -75,14 +70,8 @@ void generateChilds()
 
             sem_post (sem); //Déverrouiller un sémaphore  
 
-
-            printf("%d : End Tab Filling and Mutex UnLock Number\n",fid);
-
             free(array_n);      
             
-           
-            printf("%d : End \n",fid);
-
             exit (EXIT_SUCCESS);
             
         }
@@ -92,31 +81,29 @@ void generateChilds()
 
 void caculateStat()
 {
-    //double moy_nbTab = RAND_PAR_RELANCE*NB_FORK/(sizeof(commun->tabAlea)/sizeof(commun->tabAlea[0]));
 
-    double moy_nbTab = 2000;  // Calculer à la main puisque sinon on overflow avec le calcul au dessus 
-
-    double maxEqui = 0.0;
-    printf("tab contient %d\n", commun->tabAlea[5412]);
+    int verif = 0;
+    int endroidDepassement = 0;
 
     for(int i=0;i<TABSIZE;i++)
     {
-        double temp;
-        double tabI = commun->tabAlea[i];
 
-        if(tabI<moy_nbTab)  //Sert a verifier si on aurait pas une valeur trop basse 
-        {                   // Le pourcentage ce calcul dans les deux sens
-            temp = (100.0*(moy_nbTab-tabI))/(moy_nbTab+100.0);
+        double total = (double) NB_FORK * (double)RAND_PAR_RELANCE;   //Changement de la méthode de calcul
+        double val = commun->tabAlea[i] / total;
+
+        if( val > 0.05 ) {
+            verif = 1;
+            printf("%d pourcentage depasser %2f% ! : %i ~= %.2f%\n", i, 0.05*(double)100, commun->tabAlea[i], val*(double)100);
+            endroidDepassement = i;
         }
-        else
-        {
-            temp = (100.0*tabI)/moy_nbTab;
-        }
-        if(maxEqui<temp) maxEqui = temp;
+
+        
     }
-    maxEqui -=100;
-    printf("Balancing of function rand is : %lf % \n", maxEqui);
-}
+    if(!verif)
+        printf("Le pourcentage est rester normal\n");
+    else
+        printf("Le pourcentage est dépaser a la case %d avec la valeur \n",endroidDepassement,commun->tabAlea[i]);
+    }
 
 
 int main (){
