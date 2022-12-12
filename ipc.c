@@ -9,11 +9,10 @@
 
 
 
-#define NB_FORK 2
+#define NB_FORK 10
 #define TABSIZE 1000000
-#define NB_RELANCE 5
-#define RAND_PAR_RELANCE 100000000  //On ne pouvait pas faire 1 milliard par 1 milliard le pc kill le processus     
-                                    // Par conséquant on relance 100 fois le 100 millions pour faire 100 milliard de random
+#define NB_RELANCE 10
+#define RAND_PAR_RELANCE 1000000000  
 
 
 struct donnees {
@@ -66,12 +65,8 @@ int main (int argc, char **argv){
         }
 
 
-    double moy_nbTab = 1000;  // Calculer à la main puisque sinon on overflow avec le calcul au dessus 
+    double moy_nbTab = 10000;  // Calculer à la main puisque sinon on overflow avec le calcul au dessus 
     double maxEqui = 0.0;
-    printf("la case jsp contient %d\n", commun->tabAlea[1542]);
-    printf("la case jsp contient %d\n", commun->tabAlea[64545]);
-    printf("la case jsp contient %d\n", commun->tabAlea[5446]);
-    printf("la case jsp contient %d\n", commun->tabAlea[15443]);
 
     for(int i=0;i<TABSIZE;i++)
     {
@@ -93,13 +88,9 @@ int main (int argc, char **argv){
 
     shmdt (commun);
     shmctl (shmid, IPC_RMID, 0);
-    printf("detachement du semaphores fait\n");
 
-
-    /* cleanup semaphores */
     sem_unlink ("pSem");   
     sem_close(sem); 
-    printf("nettoyage du semaphore fait\n"); 
 
     exit (EXIT_SUCCESS);
 }
